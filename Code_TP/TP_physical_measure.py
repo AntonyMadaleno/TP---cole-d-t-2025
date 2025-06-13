@@ -7,36 +7,45 @@ from hsi_colorspace import *
 import matplotlib.pyplot as plt
 from tkinter import filedialog as fd
 
-# 1 . Load mesured spectras
-path_white_spectrum         = fd.askopenfilename(title="white reference spectrum")  # White reference acquired with JETI
-path_measured_spectrum      = fd.askopenfilename(title="measured spectrum")         # Measured spectra acquired with JETI
-path_measured_reflectance   = fd.askopenfilename(title="measured reflectance")      # Measured reflectance acquired with CS1000
+# 1 . Load mesured spectras with first illuminant
+path_white_spectrum_1        = fd.askopenfilename(title="white reference spectrum under first illuminant (.csv or .spd)")  # White reference acquired with JETI under illuminant 1
+path_measured_spectrum_1     = fd.askopenfilename(title="measured spectrum under first illuminant (.csv or .spd)")         # Measured spectra acquired with JETI under illuminant 1
 
-white_spectrum, white_wavelengths = load_spectrum_file(path_white_spectrum)
-measured_spectrum, measured_wavelengths = load_spectrum_file(path_measured_spectrum)
-measured_reflectance, measured_reflectance_wavelengths = load_spectrum_file(path_measured_reflectance)
+# 1 . Load mesured spectras with first illuminant
+path_white_spectrum_2        = fd.askopenfilename(title="white reference spectrum under second illuminant (.csv or .spd)")  # White reference acquired with JETI under illuminant 2
+path_measured_spectrum_2     = fd.askopenfilename(title="measured spectrum under second illuminant (.csv or .spd)")         # Measured spectra acquired with JETI under illuminant 2
+
+white_spectrum_1, white_wavelengths_1 = load_spectrum_file(path_white_spectrum_1)
+measured_spectrum_1, measured_wavelengths_1 = load_spectrum_file(path_measured_spectrum_1)
+
+white_spectrum_2, white_wavelengths_2 = load_spectrum_file(path_white_spectrum_2)
+measured_spectrum_2, measured_wavelengths_2 = load_spectrum_file(path_measured_spectrum_2)
 
 # 1-B . resample
 wl = np.arange(start= 380, stop= 781, step= 5)
-white_spectrum     = resample_spectrum_to_wavelengths(spectrum_values=white_spectrum, original_wavelengths=white_wavelengths, target_wavelengths=wl, interpolation_method='cubic')
-measured_spectrum  = resample_spectrum_to_wavelengths(spectrum_values=measured_spectrum, original_wavelengths=measured_wavelengths, target_wavelengths=wl, interpolation_method='cubic')
-measured_reference = resample_spectrum_to_wavelengths(spectrum_values=measured_reflectance, original_wavelengths=measured_reflectance_wavelengths, target_wavelengths=wl, interpolation_method='cubic')
+
+white_spectrum_1     = resample_spectrum_to_wavelengths(spectrum_values=white_spectrum_1, original_wavelengths=white_wavelengths_1, target_wavelengths=wl, interpolation_method='cubic')
+measured_spectrum_1  = resample_spectrum_to_wavelengths(spectrum_values=measured_spectrum_1, original_wavelengths=measured_wavelengths_1, target_wavelengths=wl, interpolation_method='cubic')
+
+white_spectrum_2     = resample_spectrum_to_wavelengths(spectrum_values=white_spectrum_2, original_wavelengths=white_wavelengths_2, target_wavelengths=wl, interpolation_method='cubic')
+measured_spectrum_2  = resample_spectrum_to_wavelengths(spectrum_values=measured_spectrum_2, original_wavelengths=measured_wavelengths_2, target_wavelengths=wl, interpolation_method='cubic')
 
 # 2 . Compute reflectance
-computed_reflectance = measured_spectrum / white_spectrum
+computed_reflectance_1 = measured_spectrum_1 / white_spectrum_1
+computed_reflectance_2 = measured_spectrum_2 / white_spectrum_2
 
 # 3 . Display results
 
-plt.plot(wl, white_spectrum, lw= 2, alpha= 0.4, label= "white reference", color = 'red')
-plt.plot(wl, measured_reference, lw= 2, alpha= 0.4, label= "measured spectra", color = 'blue')
+plt.plot(wl, white_spectrum_1, lw= 2, alpha= 0.4, label= "illuminant 1", color = 'red')
+plt.plot(wl, white_spectrum_2, lw= 2, alpha= 0.4, label= "illuminant 2", color = 'blue')
 
 plt.legend()
 plt.show()
 
 ############################################################################################################
 
-plt.plot(wl, measured_reflectance, lw= 2, alpha= 0.4, label= "measured reflectance", color = 'red')
-plt.plot(wl, computed_reflectance, lw= 2, alpha= 0.4, label= "computed reflectance", color = 'blue')
+plt.plot(wl, computed_reflectance_1, lw= 2, alpha= 0.4, label= "reflectance-I1", color = 'red')
+plt.plot(wl, computed_reflectance_2, lw= 2, alpha= 0.4, label= "reflectance-I2", color = 'blue')
 
 plt.legend()
 plt.show()
